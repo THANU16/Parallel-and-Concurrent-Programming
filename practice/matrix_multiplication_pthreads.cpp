@@ -1,22 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 // Define the global variables
 int **matrix_a = NULL;
 int *matrix_b = NULL;
 long *result = NULL;
 int num_of_calculations = 0;
+int num_of_threads = 0;
 
+void matrix_multiply_pthreads();
 
-void matrix_multiply_pthreads(int num_of_threads);
-
-void *matrix_multiply(void * rank);
-
+void *matrix_multiply(void *rank);
 
 int main()
 {
     printf("Starting the 2D array program\n");
-    int num_of_threads = 0;
     printf("Enter the number of threads: ");
     scanf("%d", &num_of_threads);
 
@@ -51,19 +50,9 @@ int main()
     matrix_a = a;
     matrix_b = b;
 
-    
-
-
-    printf("Number of calculations: %d\n", num_of_calculations);
-
-    // Free allocated memory 
-    free(a);
-
-    return 0;
-}
-
-void matrix_multiply_pthreads(int num_of_threads)
-{
+    // Call the function to multiply the 2D array with the 1D array
+    // matrix_multiply_pthreads();
+    printf("Number of threads: %d\n", num_of_threads);
     // Create the threads
     pthread_t *thread_handles = (pthread_t *)malloc(num_of_threads * sizeof(pthread_t));
 
@@ -79,13 +68,57 @@ void matrix_multiply_pthreads(int num_of_threads)
         pthread_join(thread_handles[i], NULL);
     }
 
-    // Free allocated memory
-    free(thread_handles);
+    for (int i = 0; i < sizeof(result); i++)
+    {
+        printf("Result: %d\n", result[i]);
+    }
 
-    return NULL;
+    printf("Number of calculations: %d\n", num_of_calculations);
+
+    // Free allocated memory
+    free(a);
+
+    return 0;
+}
+
+void matrix_multiply_pthreads()
+{
+    printf("Number of threads: %d\n", num_of_threads);
+    // Create the threads
+    pthread_t *thread_handles = (pthread_t *)malloc(num_of_threads * sizeof(pthread_t));
+
+    for (int i = 0; i < num_of_threads; i++)
+    {
+        // Pass the thread index as a pointer-compatible type using intptr_t
+        pthread_create(&thread_handles[i], NULL, matrix_multiply, (void *)(intptr_t)i);
+    }
+
+    // Wait for all threads to complete
+    for (int i = 0; i < num_of_threads; i++)
+    {
+        pthread_join(thread_handles[i], NULL);
+    }
 }
 
 void *matrix_multiply(void *rank)
 {
-    return nullptr;
+    // Get the thread index
+    int number_of_calculations_by_thread = 0;
+    int my_rank = (intptr_t)rank;
+    int rows_per_thread = sizeof(matrix_a) / num_of_threads;
+    int first_row = my_rank * rows_per_thread;
+    int last_row = (my_rank + 1) * rows_per_thread - 1;
+
+    // Multiply the 2D array with the 1D array
+    for (int i = first_row; i <= last_row; i++)
+    {
+        for (int j = 0; j < sizeof(matrix_b); j++)
+        {
+            result[i] += matrix_a[i][j] * matrix_b[j];
+            // num_of_calculations += 2;
+            number_of_calculations_by_thread += 2;
+        }
+    }
+
+    printf("Thread %d: Number of calculations: %d\n", my_rank, number_of_calculations_by_thread);
 }
