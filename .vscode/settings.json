@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "D:/Temp/Parallel-and-Concurrent-Programming/Lab 1/lab1"
+  "cmake.sourceDirectory": "D:/Temp/Parallel-and-Concurrent-Programming/Lab 1/lab1",
+  "C_Cpp.errorSquiggles": "disabled"
 }
