@@ -1,0 +1,1 @@
+CMakeLists.txt not found in D:\semi\semi_7\Parallel and concurrent\lab\Parallel-and-Concurrent-Programming Select CMakeLists.txt
